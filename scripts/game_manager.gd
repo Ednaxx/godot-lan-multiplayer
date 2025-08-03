@@ -3,9 +3,22 @@ extends Node
 var score = 0
 
 func _ready():
+	print("Game Manager: Starting with target server %s:%d" % [MultiplayerManager.target_server_host, MultiplayerManager.target_server_port])
+	print("Game Manager: Multiplayer mode enabled: %s, Host mode enabled: %s" % [MultiplayerManager.multiplayer_mode_enabled, MultiplayerManager.host_mode_enabled])
+	
 	if OS.has_feature("dedicated_server"):
 		print("Starting dedicated server...")
 		MultiplayerManager.become_host()
+	elif MultiplayerManager.target_server_host != MultiplayerManager.DEFAULT_SERVER_IP or MultiplayerManager.target_server_port != MultiplayerManager.BASE_PORT:
+		# We're joining a specific server from the server browser
+		print("Auto-joining server from browser: %s:%d" % [MultiplayerManager.target_server_host, MultiplayerManager.target_server_port])
+		var success = MultiplayerManager.join_as_player_2()
+		if not success:
+			print("Failed to join server, returning to browser")
+			# Reset target server info
+			MultiplayerManager.target_server_host = MultiplayerManager.DEFAULT_SERVER_IP
+			MultiplayerManager.target_server_port = MultiplayerManager.BASE_PORT
+			get_tree().change_scene_to_file("res://scenes/server_browser.tscn")
 	elif MultiplayerManager.multiplayer_mode_enabled:
 		if MultiplayerManager.host_mode_enabled:
 			print("Auto-starting as host from server browser")
@@ -19,6 +32,8 @@ func _ready():
 			if not success:
 				print("Failed to join server, returning to browser")
 				get_tree().change_scene_to_file("res://scenes/server_browser.tscn")
+	else:
+		print("Game Manager: No multiplayer mode set, running in single player")
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
@@ -38,8 +53,10 @@ func join_as_player_2():
 func back_to_main_menu():
 	print("Returning to main menu")
 	if MultiplayerManager.multiplayer_mode_enabled:
-		multiplayer.multiplayer_peer = null
-		MultiplayerManager.multiplayer_mode_enabled = false
-		MultiplayerManager.host_mode_enabled = false
+		MultiplayerManager.shutdown_multiplayer()
+	
+	# Reset target server info
+	MultiplayerManager.target_server_host = MultiplayerManager.DEFAULT_SERVER_IP
+	MultiplayerManager.target_server_port = MultiplayerManager.BASE_PORT
 	
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
