@@ -58,25 +58,14 @@ text = "Play Singleplayer"
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
-[node name="HostButton" type="Button" parent="VBoxContainer"]
+[node name="MultiplayerButton" type="Button" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_font")
 theme_override_font_sizes/font_size = 20
-text = "Host Multiplayer Game"
+text = "Play Multiplayer"
 
 [node name="Spacer3" type="Control" parent="VBoxContainer"]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-
-[node name="JoinButton" type="Button" parent="VBoxContainer"]
-custom_minimum_size = Vector2(0, 40)
-layout_mode = 2
-theme_override_fonts/font = ExtResource("3_font")
-theme_override_font_sizes/font_size = 20
-text = "Join Multiplayer Game"
-
-[node name="Spacer4" type="Control" parent="VBoxContainer"]
 custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
@@ -88,6 +77,5 @@ theme_override_font_sizes/font_size = 20
 text = "Quit"
 
 [connection signal="pressed" from="VBoxContainer/SingleplayerButton" to="." method="_on_singleplayer_pressed"]
-[connection signal="pressed" from="VBoxContainer/HostButton" to="." method="_on_host_pressed"]
-[connection signal="pressed" from="VBoxContainer/JoinButton" to="." method="_on_join_pressed"]
+[connection signal="pressed" from="VBoxContainer/MultiplayerButton" to="." method="_on_multiplayer_pressed"]
 [connection signal="pressed" from="VBoxContainer/QuitButton" to="." method="_on_quit_pressed"]

@@ -9,18 +9,8 @@ func _on_singleplayer_pressed():
 	MultiplayerManager.host_mode_enabled = false
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
-func _on_host_pressed():
-	print("Starting host game")
-	MultiplayerManager.multiplayer_mode_enabled = true
-	MultiplayerManager.host_mode_enabled = true
-	get_tree().change_scene_to_file("res://scenes/game.tscn")
-
-func _on_join_pressed():
-	print("Joining multiplayer game")
-	MultiplayerManager.multiplayer_mode_enabled = true
-	MultiplayerManager.host_mode_enabled = false
-	get_tree().change_scene_to_file("res://scenes/game.tscn")
+func _on_multiplayer_pressed():
+	get_tree().change_scene_to_file("res://scenes/server_browser.tscn")
 
 func _on_quit_pressed():
-	print("Quitting game")
 	get_tree().quit()

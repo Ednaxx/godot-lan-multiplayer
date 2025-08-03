@@ -24,7 +24,7 @@ func _ready():
 	else:
 		$Camera2D.enabled = false
 
-func _apply_animations(delta):
+func _apply_animations(_delta):
 	# Flip the Sprite
 	if direction > 0:
 		animated_sprite.flip_h = false

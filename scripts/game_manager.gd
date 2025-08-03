@@ -8,11 +8,17 @@ func _ready():
 		MultiplayerManager.become_host()
 	elif MultiplayerManager.multiplayer_mode_enabled:
 		if MultiplayerManager.host_mode_enabled:
-			print("Auto-starting as host from main menu")
-			MultiplayerManager.become_host()
+			print("Auto-starting as host from server browser")
+			var success = MultiplayerManager.become_host()
+			if not success:
+				print("Failed to start server, returning to browser")
+				get_tree().change_scene_to_file("res://scenes/server_browser.tscn")
 		else:
-			print("Auto-joining game from main menu")
-			MultiplayerManager.join_as_player_2()
+			print("Auto-joining game from server browser")
+			var success = MultiplayerManager.join_as_player_2()
+			if not success:
+				print("Failed to join server, returning to browser")
+				get_tree().change_scene_to_file("res://scenes/server_browser.tscn")
 
 func _input(event):
 	if event.is_action_pressed("ui_cancel"):
