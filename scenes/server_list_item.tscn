@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://b8g3vr85owxse"]
 
-[ext_resource type="Script" path="res://scripts/server_list_item.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cfhc5ynl0x4y0" path="res://scripts/menu/server_list_item.gd" id="1_script"]
 [ext_resource type="FontFile" uid="uid://dbjl1e6kdxpl6" path="res://assets/fonts/PixelOperator8.ttf" id="2_font"]
 
 [node name="ServerListItem" type="Control"]
