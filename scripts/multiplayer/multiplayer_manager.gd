@@ -10,6 +10,9 @@ var host_mode_enabled = false
 var multiplayer_mode_enabled = false
 var respawn_point = Vector2(30, 20)
 
+# Flag to indicate if multiplayer should start automatically when game scene loads
+var auto_start_multiplayer = false
+
 func become_host():
 	print("Starting host!")
 	

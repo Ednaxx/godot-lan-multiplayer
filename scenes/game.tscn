@@ -1,8 +1,7 @@
-[gd_scene load_steps=18 format=3 uid="uid://cuv4vme4rwno0"]
+[gd_scene load_steps=17 format=3 uid="uid://cuv4vme4rwno0"]
 
 [ext_resource type="Script" uid="uid://3423r1sh0p6e" path="res://scripts/game_manager.gd" id="1_l4ihi"]
 [ext_resource type="PackedScene" uid="uid://dqnaqj8yb6hwd" path="res://scenes/player.tscn" id="1_rbmkf"]
-[ext_resource type="FontFile" uid="uid://c53kogtyjwsss" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_nlliu"]
 [ext_resource type="Texture2D" uid="uid://d0q2g65ahgok" path="res://assets/sprites/world_tileset.png" id="2_r1crl"]
 [ext_resource type="PackedScene" uid="uid://bgv5v2fxqlswe" path="res://scenes/platform.tscn" id="3_cmfc3"]
 [ext_resource type="PackedScene" uid="uid://pqp5qaw561fr" path="res://scenes/coin.tscn" id="4_28cek"]
@@ -226,18 +225,6 @@ size = Vector2(33, 83)
 unique_name_in_owner = true
 script = ExtResource("1_l4ihi")
 
-[node name="ScoreLabel" type="Label" parent="GameManager"]
-offset_left = 513.0
-offset_top = -144.0
-offset_right = 618.0
-offset_bottom = -125.0
-theme_override_colors/font_color = Color(0.0980392, 0.313726, 0.752941, 1)
-theme_override_fonts/font = ExtResource("2_nlliu")
-theme_override_font_sizes/font_size = 8
-text = "You collected X coins."
-horizontal_alignment = 1
-autowrap_mode = 2
-
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = SubResource("TileSet_wvtw0")
 format = 2
@@ -352,38 +339,6 @@ theme_override_font_sizes/font_size = 8
 text = "Great job!"
 horizontal_alignment = 1
 
-[node name="MultiplayerHUD" type="Control" parent="."]
-unique_name_in_owner = true
-layout_mode = 3
-anchors_preset = 0
-offset_left = -110.0
-offset_bottom = 35.0
-
-[node name="Panel" type="Panel" parent="MultiplayerHUD"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="MultiplayerHUD/Panel"]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
-
-[node name="HostGame" type="Button" parent="MultiplayerHUD/Panel/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("2_nlliu")
-theme_override_font_sizes/font_size = 8
-text = "Host New Game"
-
-[node name="JoinAsPlayer2" type="Button" parent="MultiplayerHUD/Panel/VBoxContainer"]
-layout_mode = 2
-theme_override_fonts/font = ExtResource("7_8cblx")
-theme_override_font_sizes/font_size = 8
-text = "Join as Player 2"
-
 [node name="MultiplayerSpawner" type="MultiplayerSpawner" parent="."]
 _spawnable_scenes = PackedStringArray("uid://d226nufmlvivj")
 spawn_path = NodePath("../Players")
@@ -399,6 +354,4 @@ script = ExtResource("10_nyxvp")
 position = Vector2(622.5, -136.5)
 shape = SubResource("RectangleShape2D_2186x")
 
-[connection signal="pressed" from="MultiplayerHUD/Panel/VBoxContainer/HostGame" to="GameManager" method="become_host"]
-[connection signal="pressed" from="MultiplayerHUD/Panel/VBoxContainer/JoinAsPlayer2" to="GameManager" method="join_as_player_2"]
 [connection signal="body_entered" from="FinishLine" to="FinishLine" method="_on_body_entered"]
