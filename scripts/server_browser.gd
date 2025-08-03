@@ -1,16 +1,25 @@
 extends Control
 
-const DISCOVERY_PORT = 8081
+const DISCOVERY_PORT = 8079
 const BROADCAST_INTERVAL = 2.0
 const SERVER_TIMEOUT = 10.0
+const SERVERS_PER_PAGE = 5
 
 var udp_socket: PacketPeerUDP
 var discovered_servers = {}
 var server_list_item_scene = preload("res://scenes/server_list_item.tscn")
 
+# Pagination
+var current_page = 0
+var total_pages = 0
+
 @onready var server_list = %ServerList
 @onready var no_servers_label = %NoServersLabel
 @onready var status_label = %StatusLabel
+@onready var pagination_container = %PaginationContainer
+@onready var prev_button = %PrevButton
+@onready var next_button = %NextButton
+@onready var page_label = %PageLabel
 
 func _ready():
 	_setup_discovery()
@@ -56,19 +65,16 @@ func _process_server_broadcast(message: String, ip: String, _port: int):
 		
 		# Only show servers that have available slots (less than max players)
 		if player_count < max_players:
-			# Use port as the unique key to avoid duplicates
-			var server_key = str(server_port)
+			# Use IP:port as the unique key to support multiple servers per machine
+			var server_key = ip + ":" + str(server_port)
 			
 			# Check if we already have this server
 			if server_key in discovered_servers:
 				var existing_server = discovered_servers[server_key]
-				# Prefer non-localhost IP addresses
-				if ip != "127.0.0.1" and existing_server.ip == "127.0.0.1":
-					print("Server browser: Updating server %s from localhost to %s" % [server_key, ip])
-					existing_server.ip = ip
-				# Update last seen time
+				# Update existing server info
 				existing_server.last_seen = Time.get_unix_time_from_system()
 				existing_server.player_count = player_count
+				print("Server browser: Updated existing server %s" % server_key)
 			else:
 				# New server
 				discovered_servers[server_key] = {
@@ -107,18 +113,41 @@ func _update_server_list():
 	for child in server_list.get_children():
 		child.queue_free()
 	
-	# Show/hide no servers label
+	# Calculate pagination
+	var server_keys = discovered_servers.keys()
+	var total_servers = server_keys.size()
+	total_pages = max(1, ceil(float(total_servers) / float(SERVERS_PER_PAGE)))
+	
+	# Ensure current page is within bounds
+	current_page = clamp(current_page, 0, total_pages - 1)
+	
+	# Show/hide elements based on server count
 	if discovered_servers.is_empty():
 		no_servers_label.visible = true
+		pagination_container.visible = false
 		status_label.text = "No available servers found."
 	else:
 		no_servers_label.visible = false
-		status_label.text = "Found %d available server(s)" % discovered_servers.size()
+		pagination_container.visible = total_pages > 1
+		status_label.text = "Found %d available server(s)" % total_servers
 		
-		# Add server list items
-		for server_key in discovered_servers:
+		# Calculate which servers to show on current page
+		var start_index = current_page * SERVERS_PER_PAGE
+		var end_index = min(start_index + SERVERS_PER_PAGE, total_servers)
+		
+		# Add server list items for current page
+		for i in range(start_index, end_index):
+			var server_key = server_keys[i]
 			var server = discovered_servers[server_key]
 			_add_server_list_item(server)
+		
+		# Update pagination controls
+		_update_pagination_controls()
+
+func _update_pagination_controls():
+	prev_button.disabled = current_page == 0
+	next_button.disabled = current_page >= total_pages - 1
+	page_label.text = "Page %d of %d" % [current_page + 1, total_pages]
 
 func _add_server_list_item(server_info: Dictionary):
 	var item = server_list_item_scene.instantiate()
@@ -127,6 +156,11 @@ func _add_server_list_item(server_info: Dictionary):
 	# Configure the server list item
 	item.setup_server_info(server_info)
 	item.join_requested.connect(_on_join_server_requested)
+	
+	# Add spacing between items
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 50)
+	server_list.add_child(spacer)
 
 func _on_join_server_requested(server_info: Dictionary):
 	print("Attempting to join server: %s:%d" % [server_info.ip, server_info.port])
@@ -142,11 +176,22 @@ func _on_join_server_requested(server_info: Dictionary):
 
 func _refresh_servers():
 	discovered_servers.clear()
+	current_page = 0  # Reset to first page
 	_update_server_list()
 	status_label.text = "Refreshing server list..."
 
 func _on_refresh_pressed():
 	_refresh_servers()
+
+func _on_prev_page_pressed():
+	if current_page > 0:
+		current_page -= 1
+		_update_server_list()
+
+func _on_next_page_pressed():
+	if current_page < total_pages - 1:
+		current_page += 1
+		_update_server_list()
 
 func _on_host_pressed():
 	print("Starting new server...")

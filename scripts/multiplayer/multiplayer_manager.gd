@@ -3,7 +3,7 @@ extends Node
 const BASE_PORT = 8080
 const DEFAULT_SERVER_IP = "127.0.0.1"
 const MAX_PLAYERS_PER_SERVER = 2
-const DISCOVERY_PORT = 8081
+const DISCOVERY_PORT = 8079
 const BROADCAST_INTERVAL = 2.0
 
 var multiplayer_scene = preload("res://scenes/multiplayer_player.tscn")
@@ -38,10 +38,26 @@ func become_host():
 	current_player_count = 0
 	
 	var server_peer = ENetMultiplayerPeer.new()
-	var error = server_peer.create_server(target_server_port, MAX_PLAYERS_PER_SERVER)
+	var port_to_try = target_server_port
+	var max_attempts = 10
+	var attempts = 0
+	var error
+	
+	# Try to find an available port
+	while attempts < max_attempts:
+		error = server_peer.create_server(port_to_try, MAX_PLAYERS_PER_SERVER)
+		
+		if error == OK:
+			print("Successfully created server on port %d" % port_to_try)
+			target_server_port = port_to_try  # Update to the actual port we're using
+			break
+		else:
+			print("Port %d is busy, trying %d..." % [port_to_try, port_to_try + 1])
+			port_to_try += 1
+			attempts += 1
 	
 	if error != OK:
-		print("Failed to create server on port %d: %s" % [target_server_port, error])
+		print("Failed to create server after %d attempts. Last error: %s" % [max_attempts, error])
 		return false
 	
 	multiplayer.multiplayer_peer = server_peer
@@ -142,11 +158,14 @@ func _broadcast_server():
 	
 	# Only broadcast if we have available slots
 	if current_player_count < MAX_PLAYERS_PER_SERVER:
+		# Include port in server name to distinguish multiple servers
+		var display_name = "%s (Port %d)" % [server_name, target_server_port]
+		
 		var message = "SERVER_AVAILABLE:%d:%d:%d:%s" % [
 			target_server_port, 
 			current_player_count, 
 			MAX_PLAYERS_PER_SERVER, 
-			server_name
+			display_name
 		]
 		
 		print("Broadcasting message: %s" % message)

@@ -46,6 +46,7 @@ text = "Players: 1/2 | Port: 8080"
 
 [node name="JoinButton" type="Button" parent="HBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(80, 0)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_font")
 theme_override_font_sizes/font_size = 18
