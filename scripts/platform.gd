@@ -2,7 +2,7 @@ extends AnimatableBody2D
 
 @export var animation_player_optional: AnimationPlayer
 
-func _on_player_connected(id):
+func _on_player_connected(_id):
 	if not multiplayer.is_server():
 		animation_player_optional.stop()
 		animation_player_optional.set_active(false)

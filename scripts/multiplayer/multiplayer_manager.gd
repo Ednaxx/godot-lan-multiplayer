@@ -13,17 +13,13 @@ var host_mode_enabled = false
 var multiplayer_mode_enabled = false
 var respawn_point = Vector2(30, 20)
 
-# Dynamic server connection info
 var target_server_host = DEFAULT_SERVER_IP
 var target_server_port = BASE_PORT
 
-# Flag to indicate if multiplayer should start automatically when game scene loads
 var auto_start_multiplayer = false
 
-# Current server state
 var current_player_count = 0
 
-# Server broadcasting
 var broadcast_socket: PacketPeerUDP
 var broadcast_timer: Timer
 var server_name = "Godot LAN Game"
@@ -108,7 +104,6 @@ func _add_player_to_game(id: int):
 	
 	print("Current players: %d/%d" % [current_player_count, MAX_PLAYERS_PER_SERVER])
 	
-	# If server is full, stop broadcasting
 	if current_player_count >= MAX_PLAYERS_PER_SERVER:
 		print("Server full, stopping broadcasts")
 	
@@ -121,7 +116,6 @@ func _del_player(id: int):
 	
 	print("Current players: %d/%d" % [current_player_count, MAX_PLAYERS_PER_SERVER])
 	
-	# If server has available slots and we're hosting, resume broadcasting
 	if host_mode_enabled and current_player_count < MAX_PLAYERS_PER_SERVER and not broadcast_timer:
 		print("Server has available slots, resuming broadcasts")
 		_start_server_broadcasting()
@@ -135,11 +129,9 @@ func _start_server_broadcasting():
 	print("Starting server broadcasting")
 	broadcast_socket = PacketPeerUDP.new()
 	
-	# Enable broadcast mode
 	broadcast_socket.set_broadcast_enabled(true)
 	print("Broadcast mode enabled on socket")
 	
-	# Create and configure broadcast timer
 	broadcast_timer = Timer.new()
 	broadcast_timer.wait_time = BROADCAST_INTERVAL
 	broadcast_timer.timeout.connect(_broadcast_server)
@@ -148,7 +140,6 @@ func _start_server_broadcasting():
 	
 	print("Broadcast timer created with interval: %f seconds" % BROADCAST_INTERVAL)
 	
-	# Send initial broadcast
 	_broadcast_server()
 
 func _broadcast_server():
@@ -156,9 +147,7 @@ func _broadcast_server():
 		print("Broadcast skipped - host_mode_enabled: %s, broadcast_socket: %s" % [host_mode_enabled, broadcast_socket != null])
 		return
 	
-	# Only broadcast if we have available slots
 	if current_player_count < MAX_PLAYERS_PER_SERVER:
-		# Include port in server name to distinguish multiple servers
 		var display_name = "%s (Port %d)" % [server_name, target_server_port]
 		
 		var message = "SERVER_AVAILABLE:%d:%d:%d:%s" % [
@@ -170,7 +159,6 @@ func _broadcast_server():
 		
 		print("Broadcasting message: %s" % message)
 		
-		# Broadcast to local network only
 		broadcast_socket.set_dest_address("255.255.255.255", DISCOVERY_PORT)
 		var result = broadcast_socket.put_packet(message.to_utf8_buffer())
 		

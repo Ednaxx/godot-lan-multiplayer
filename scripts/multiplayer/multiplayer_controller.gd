@@ -31,7 +31,6 @@ func _apply_animations(_delta):
 	elif direction < 0:
 		animated_sprite.flip_h = true
 	
-	# Play animations
 	if _is_on_floor:
 		if direction == 0:
 			animated_sprite.play("idle")

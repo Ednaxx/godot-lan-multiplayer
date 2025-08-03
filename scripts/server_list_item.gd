@@ -19,7 +19,6 @@ func setup_server_info(info: Dictionary):
 		info.port
 	]
 	
-	# Enable join button only if server has available slots
 	join_button.disabled = info.player_count >= info.max_players
 
 func _on_join_pressed():

@@ -15,7 +15,6 @@ func _ready():
 		var success = MultiplayerManager.join_as_player_2()
 		if not success:
 			print("Failed to join server, returning to browser")
-			# Reset target server info
 			MultiplayerManager.target_server_host = MultiplayerManager.DEFAULT_SERVER_IP
 			MultiplayerManager.target_server_port = MultiplayerManager.BASE_PORT
 			get_tree().change_scene_to_file("res://scenes/server_browser.tscn")
@@ -55,7 +54,6 @@ func back_to_main_menu():
 	if MultiplayerManager.multiplayer_mode_enabled:
 		MultiplayerManager.shutdown_multiplayer()
 	
-	# Reset target server info
 	MultiplayerManager.target_server_host = MultiplayerManager.DEFAULT_SERVER_IP
 	MultiplayerManager.target_server_port = MultiplayerManager.BASE_PORT
 	

@@ -9,7 +9,6 @@ var udp_socket: PacketPeerUDP
 var discovered_servers = {}
 var server_list_item_scene = preload("res://scenes/server_list_item.tscn")
 
-# Pagination
 var current_page = 0
 var total_pages = 0
 
@@ -63,20 +62,16 @@ func _process_server_broadcast(message: String, ip: String, _port: int):
 		
 		print("Server browser: Parsed server - Port: %d, Players: %d/%d, Name: %s" % [server_port, player_count, max_players, server_name])
 		
-		# Only show servers that have available slots (less than max players)
 		if player_count < max_players:
 			# Use IP:port as the unique key to support multiple servers per machine
 			var server_key = ip + ":" + str(server_port)
 			
-			# Check if we already have this server
 			if server_key in discovered_servers:
 				var existing_server = discovered_servers[server_key]
-				# Update existing server info
 				existing_server.last_seen = Time.get_unix_time_from_system()
 				existing_server.player_count = player_count
 				print("Server browser: Updated existing server %s" % server_key)
 			else:
-				# New server
 				discovered_servers[server_key] = {
 					"ip": ip,
 					"port": server_port,
@@ -109,19 +104,15 @@ func _cleanup_old_servers():
 		_update_server_list()
 
 func _update_server_list():
-	# Clear existing server list items
 	for child in server_list.get_children():
 		child.queue_free()
 	
-	# Calculate pagination
 	var server_keys = discovered_servers.keys()
 	var total_servers = server_keys.size()
 	total_pages = max(1, ceil(float(total_servers) / float(SERVERS_PER_PAGE)))
 	
-	# Ensure current page is within bounds
 	current_page = clamp(current_page, 0, total_pages - 1)
 	
-	# Show/hide elements based on server count
 	if discovered_servers.is_empty():
 		no_servers_label.visible = true
 		pagination_container.visible = false
@@ -131,17 +122,14 @@ func _update_server_list():
 		pagination_container.visible = total_pages > 1
 		status_label.text = "Found %d available server(s)" % total_servers
 		
-		# Calculate which servers to show on current page
 		var start_index = current_page * SERVERS_PER_PAGE
 		var end_index = min(start_index + SERVERS_PER_PAGE, total_servers)
 		
-		# Add server list items for current page
 		for i in range(start_index, end_index):
 			var server_key = server_keys[i]
 			var server = discovered_servers[server_key]
 			_add_server_list_item(server)
 		
-		# Update pagination controls
 		_update_pagination_controls()
 
 func _update_pagination_controls():
@@ -153,11 +141,9 @@ func _add_server_list_item(server_info: Dictionary):
 	var item = server_list_item_scene.instantiate()
 	server_list.add_child(item)
 	
-	# Configure the server list item
 	item.setup_server_info(server_info)
 	item.join_requested.connect(_on_join_server_requested)
 	
-	# Add spacing between items
 	var spacer = Control.new()
 	spacer.custom_minimum_size = Vector2(0, 50)
 	server_list.add_child(spacer)
@@ -165,18 +151,16 @@ func _add_server_list_item(server_info: Dictionary):
 func _on_join_server_requested(server_info: Dictionary):
 	print("Attempting to join server: %s:%d" % [server_info.ip, server_info.port])
 	
-	# Set the target server info in MultiplayerManager
 	MultiplayerManager.target_server_host = server_info.ip
 	MultiplayerManager.target_server_port = server_info.port
 	MultiplayerManager.multiplayer_mode_enabled = true
 	MultiplayerManager.host_mode_enabled = false
 	
-	# Switch to game scene and join as player 2
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func _refresh_servers():
 	discovered_servers.clear()
-	current_page = 0  # Reset to first page
+	current_page = 0
 	_update_server_list()
 	status_label.text = "Refreshing server list..."
 
@@ -196,13 +180,11 @@ func _on_next_page_pressed():
 func _on_host_pressed():
 	print("Starting new server...")
 	
-	# Reset to default settings for hosting
 	MultiplayerManager.target_server_host = MultiplayerManager.DEFAULT_SERVER_IP
 	MultiplayerManager.target_server_port = MultiplayerManager.BASE_PORT
 	MultiplayerManager.multiplayer_mode_enabled = true
 	MultiplayerManager.host_mode_enabled = true
 	
-	# Switch to game scene and start as host
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func _on_back_pressed():
