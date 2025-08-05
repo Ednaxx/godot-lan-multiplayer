@@ -19,6 +19,7 @@ var alive = true
 		%InputSynchronizer.set_multiplayer_authority(id)
 
 func _ready():
+
 	if multiplayer.get_unique_id() == player_id:
 		$Camera2D.make_current()
 	else:
@@ -86,8 +87,3 @@ func _set_alive():
 	print("alive again!")
 	alive = true
 	Engine.time_scale = 1.0
-
-
-
-
-

@@ -72,6 +72,7 @@ func become_host():
 	return true
 	
 func join_as_player_2():
+	_remove_single_player()
 	print("Joining server at %s:%d" % [target_server_host, target_server_port])
 	
 	multiplayer_mode_enabled = true
@@ -84,8 +85,9 @@ func join_as_player_2():
 		return false
 	
 	multiplayer.multiplayer_peer = client_peer
-	
-	_remove_single_player()
+
+	_players_spawn_node = get_tree().get_current_scene().get_node("Players")
+		
 	return true
 
 func _add_player_to_game(id: int):
@@ -98,15 +100,44 @@ func _add_player_to_game(id: int):
 	var player_to_add = multiplayer_scene.instantiate()
 	player_to_add.player_id = id
 	player_to_add.name = str(id)
-	
+
 	_players_spawn_node.add_child(player_to_add, true)
 	current_player_count += 1
+
+	if host_mode_enabled:
+		call_deferred("_force_resync_for_new_peer", id)
 	
 	print("Current players: %d/%d" % [current_player_count, MAX_PLAYERS_PER_SERVER])
 	
 	if current_player_count >= MAX_PLAYERS_PER_SERVER:
 		print("Server full, stopping broadcasts")
+	if host_mode_enabled:
+		_resync_all_players.rpc()
+
+@rpc("any_peer", "call_local") 
+func _resync_all_players():
+	print("Resyncing all players...")
 	
+func _force_resync_for_new_peer(new_peer_id: int):
+	print("Forcing resync for new peer: %d" % new_peer_id)
+	# Remove e re-adiciona todos os players para forçar replicação
+	var players_data = []
+	
+	for child in _players_spawn_node.get_children():
+		players_data.append({
+			"id": int(child.name),
+			"position": child.position
+		})
+		child.queue_free()
+	
+	await get_tree().process_frame
+	for data in players_data:
+		var player_to_add = multiplayer_scene.instantiate()
+		player_to_add.player_id = data.id
+		player_to_add.name = str(data.id)
+		player_to_add.position = data.position
+		_players_spawn_node.add_child(player_to_add, true)
+
 func _del_player(id: int):
 	print("Player %s left the game!" % id)
 	if not _players_spawn_node.has_node(str(id)):
@@ -123,7 +154,8 @@ func _del_player(id: int):
 func _remove_single_player():
 	print("Remove single player")
 	var player_to_remove = get_tree().get_current_scene().get_node("Player")
-	player_to_remove.queue_free()
+	if player_to_remove:
+		player_to_remove.queue_free()
 
 func _start_server_broadcasting():
 	print("Starting server broadcasting")

@@ -157,7 +157,7 @@ func _on_join_server_requested(server_info: Dictionary):
 	MultiplayerManager.host_mode_enabled = false
 	
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
-
+	
 func _refresh_servers():
 	discovered_servers.clear()
 	current_page = 0
