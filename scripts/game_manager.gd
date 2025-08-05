@@ -1,5 +1,7 @@
 extends Node
 
+signal score_updated(new_score)
+
 var score = 0
 
 func _ready():
@@ -40,6 +42,10 @@ func _input(event):
 
 func add_point():
 	score += 1
+	emit_signal("score_updated", score)
+
+func get_score():
+	return score
 
 func become_host():
 	print("Become host pressed")

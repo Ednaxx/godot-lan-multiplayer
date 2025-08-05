@@ -22,6 +22,8 @@ func _ready():
 
 	if multiplayer.get_unique_id() == player_id:
 		$Camera2D.make_current()
+		var hud_scene = preload("res://scenes/HUD.tscn").instantiate()
+		get_tree().get_current_scene().add_child(hud_scene)
 	else:
 		$Camera2D.enabled = false
 
