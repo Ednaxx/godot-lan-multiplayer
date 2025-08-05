@@ -10,8 +10,8 @@ config_version=5
 
 [application]
 
-config/name="First Game"
-run/main_scene="res://scenes/game.tscn"
+config/name="Lan Game"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 

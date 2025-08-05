@@ -19,19 +19,19 @@ var alive = true
 		%InputSynchronizer.set_multiplayer_authority(id)
 
 func _ready():
+
 	if multiplayer.get_unique_id() == player_id:
 		$Camera2D.make_current()
 	else:
 		$Camera2D.enabled = false
 
-func _apply_animations(delta):
+func _apply_animations(_delta):
 	# Flip the Sprite
 	if direction > 0:
 		animated_sprite.flip_h = false
 	elif direction < 0:
 		animated_sprite.flip_h = true
 	
-	# Play animations
 	if _is_on_floor:
 		if direction == 0:
 			animated_sprite.play("idle")
@@ -73,22 +73,17 @@ func _physics_process(delta):
 		_apply_animations(delta)
 
 func mark_dead():
-	print("Mark player dead!")
+	print("[Controller] mark_dead called! player_id: %s, alive: %s, position: %s" % [player_id, alive, position])
 	alive = false
 	$CollisionShape2D.set_deferred("disabled", true)
 	$RespawnTimer.start()
 
 func _respawn():
-	print("Respawned!")
+	print("[Controller] _respawn called! player_id: %s, old position: %s, new position: %s" % [player_id, position, MultiplayerManager.respawn_point])
 	position = MultiplayerManager.respawn_point
 	$CollisionShape2D.set_deferred("disabled", false)
 
 func _set_alive():
-	print("alive again!")
+	print("[Controller] _set_alive called! player_id: %s, position: %s" % [player_id, position])
 	alive = true
 	Engine.time_scale = 1.0
-
-
-
-
-
