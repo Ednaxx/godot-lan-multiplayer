@@ -21,6 +21,7 @@ var alive = true
 func _ready():
 
 	if multiplayer.get_unique_id() == player_id:
+		add_to_group("players")
 		$Camera2D.make_current()
 		var hud_scene = preload("res://scenes/HUD.tscn").instantiate()
 		get_tree().get_current_scene().add_child(hud_scene)
@@ -89,3 +90,6 @@ func _set_alive():
 	print("[Controller] _set_alive called! player_id: %s, position: %s" % [player_id, position])
 	alive = true
 	Engine.time_scale = 1.0
+
+func get_player_id():
+	return player_id
