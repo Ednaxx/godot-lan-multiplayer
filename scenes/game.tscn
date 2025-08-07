@@ -1,10 +1,11 @@
-[gd_scene load_steps=17 format=3 uid="uid://cuv4vme4rwno0"]
+[gd_scene load_steps=18 format=3 uid="uid://cuv4vme4rwno0"]
 
 [ext_resource type="Script" uid="uid://3423r1sh0p6e" path="res://scripts/game_manager.gd" id="1_l4ihi"]
 [ext_resource type="PackedScene" uid="uid://dqnaqj8yb6hwd" path="res://scenes/player.tscn" id="1_rbmkf"]
 [ext_resource type="Texture2D" uid="uid://d0q2g65ahgok" path="res://assets/sprites/world_tileset.png" id="2_r1crl"]
 [ext_resource type="PackedScene" uid="uid://bgv5v2fxqlswe" path="res://scenes/platform.tscn" id="3_cmfc3"]
 [ext_resource type="PackedScene" uid="uid://pqp5qaw561fr" path="res://scenes/coin.tscn" id="4_28cek"]
+[ext_resource type="PackedScene" uid="uid://d4hr4itwf56st" path="res://scenes/HUD.tscn" id="4_vtaks"]
 [ext_resource type="PackedScene" uid="uid://dtrbka1ef726o" path="res://scenes/killzone.tscn" id="5_x8euu"]
 [ext_resource type="PackedScene" uid="uid://d2w2i5h0lhc6l" path="res://scenes/slime.tscn" id="6_l0s6b"]
 [ext_resource type="FontFile" uid="uid://dbjl1e6kdxpl6" path="res://assets/fonts/PixelOperator8.ttf" id="7_8cblx"]
@@ -236,12 +237,7 @@ layer_1/tile_data = PackedInt32Array(196609, 0, 0, 196610, 0, 0, 393215, 0, 0, 3
 [node name="Player" parent="." instance=ExtResource("1_rbmkf")]
 position = Vector2(34, 37)
 
-[node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(0, -7)
-zoom = Vector2(4, 4)
-limit_bottom = 120
-limit_smoothed = true
-position_smoothing_enabled = true
+[node name="Hud" parent="Player" instance=ExtResource("4_vtaks")]
 
 [node name="Killzone" parent="." instance=ExtResource("5_x8euu")]
 position = Vector2(74, 141)

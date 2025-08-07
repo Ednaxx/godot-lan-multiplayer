@@ -1,6 +1,8 @@
 extends Node
 
-var score = 0
+signal score_updated(player_id, new_score)
+
+var scores = {}
 
 func _ready():
 	print("Game Manager: Starting with target server %s:%d" % [MultiplayerManager.target_server_host, MultiplayerManager.target_server_port])
@@ -38,8 +40,16 @@ func _input(event):
 	if event.is_action_pressed("ui_cancel"):
 		back_to_main_menu()
 
-func add_point():
-	score += 1
+
+func add_point(player_id):
+	if not scores.has(player_id):
+		scores[player_id] = 0
+	scores[player_id] += 1
+	emit_signal("score_updated", player_id, scores[player_id])
+
+
+func get_score(player_id):
+	return scores.get(player_id, 0)
 
 func become_host():
 	print("Become host pressed")
