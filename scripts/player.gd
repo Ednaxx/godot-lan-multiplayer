@@ -7,9 +7,15 @@ const JUMP_VELOCITY = -300.0
 # Get the gravity from the project settings to be synced with RigidBody nodes.
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
-# Para compatibilidade com o sistema de pontuação
+var alive = true
+
 func get_player_id():
 	return 1
+
+func mark_dead():
+	print("[Player] mark_dead called!")
+	alive = false
+	$CollisionShape2D.set_deferred("disabled", true)
 
 func _ready():
 	add_to_group("players")

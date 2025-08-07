@@ -3,11 +3,13 @@ extends Area2D
 @onready var timer = $Timer
 
 func _on_body_entered(body):
-	if not body.has_method("mark_dead") or not body.has_method("get") or not body.has_method("set"):
+	if not body.has_method("mark_dead"):
 		return
+	
 	if not MultiplayerManager.multiplayer_mode_enabled:
+		print("Singleplayer death!")
 		Engine.time_scale = 0.5
-		body.get_node("CollisionShape2D").queue_free()
+		body.mark_dead()
 		timer.start()
 	else:
 		if multiplayer.is_server():
@@ -18,8 +20,9 @@ func _on_body_entered(body):
 @rpc("any_peer")
 func request_player_death(player_name):
 	var players_node = get_tree().get_current_scene().get_node("Players")
-	if players_node.has_node(player_name):
-		var player = players_node.get_node(player_name)
+	var player_path = NodePath(player_name)
+	if players_node.has_node(player_path):
+		var player = players_node.get_node(player_path)
 		if player and player.alive:
 			_multiplayer_dead(player)
 
