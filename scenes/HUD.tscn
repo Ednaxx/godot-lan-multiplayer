@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://d4hr4itwf56st"]
+[gd_scene load_steps=4 format=3 uid="uid://d4hr4itwf56st"]
 
 [ext_resource type="FontFile" uid="uid://c53kogtyjwsss" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="1_fls4u"]
 [ext_resource type="Script" uid="uid://f8n8yoc2018w" path="res://scripts/score_label.gd" id="2_1etfg"]
+[ext_resource type="Script" path="res://scripts/lives_label.gd" id="3_lives"]
 
 [node name="Hud" type="Control"]
 layout_mode = 3
@@ -37,3 +38,16 @@ theme_override_font_sizes/font_size = 25
 text = "0 Points"
 script = ExtResource("2_1etfg")
 metadata/_edit_use_anchors_ = true
+
+[node name="LivesLabel" type="Label" parent="Camera2D/CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -130.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 80.0
+grow_horizontal = 0
+text = ""
+script = ExtResource("3_lives")
+horizontal_alignment = 2

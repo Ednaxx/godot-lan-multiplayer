@@ -140,14 +140,28 @@ func _force_resync_for_new_peer(new_peer_id: int):
 
 func _del_player(id: int):
 	print("Player %s left the game!" % id)
-	if not _players_spawn_node.has_node(str(id)):
+	
+	# Verifica se ainda temos acesso aos nós
+	if not _players_spawn_node or not is_instance_valid(_players_spawn_node):
+		print("Players spawn node not available")
+		current_player_count = max(0, current_player_count - 1)
 		return
+		
+	if not _players_spawn_node.has_node(str(id)):
+		print("Player node %s not found" % id)
+		return
+		
 	_players_spawn_node.get_node(str(id)).queue_free()
 	current_player_count = max(0, current_player_count - 1)
 	
 	print("Current players: %d/%d" % [current_player_count, MAX_PLAYERS_PER_SERVER])
 	
-	if host_mode_enabled and current_player_count < MAX_PLAYERS_PER_SERVER and not broadcast_timer:
+	# Só retoma broadcasts se ainda estivermos em modo host e multiplayer ativo
+	if (host_mode_enabled and 
+		current_player_count < MAX_PLAYERS_PER_SERVER and 
+		not broadcast_timer and
+		multiplayer.has_multiplayer_peer() and
+		multiplayer.multiplayer_peer != null):
 		print("Server has available slots, resuming broadcasts")
 		_start_server_broadcasting()
 	
@@ -175,8 +189,17 @@ func _start_server_broadcasting():
 	_broadcast_server()
 
 func _broadcast_server():
-	if not host_mode_enabled or not broadcast_socket:
-		print("Broadcast skipped - host_mode_enabled: %s, broadcast_socket: %s" % [host_mode_enabled, broadcast_socket != null])
+	# Verificações de segurança antes de fazer broadcast
+	if (not host_mode_enabled or 
+		not broadcast_socket or 
+		not is_instance_valid(broadcast_socket) or
+		not multiplayer.has_multiplayer_peer() or
+		multiplayer.multiplayer_peer == null):
+		print("Broadcast skipped - host_mode_enabled: %s, broadcast_socket valid: %s, multiplayer active: %s" % [
+			host_mode_enabled, 
+			broadcast_socket != null and is_instance_valid(broadcast_socket),
+			multiplayer.has_multiplayer_peer() and multiplayer.multiplayer_peer != null
+		])
 		return
 	
 	if current_player_count < MAX_PLAYERS_PER_SERVER:
@@ -215,7 +238,15 @@ func _stop_server_broadcasting():
 	print("Stopped server broadcasting")
 
 func shutdown_multiplayer():
+	print("Shutting down multiplayer...")
 	_stop_server_broadcasting()
+	
+	# Desconectar sinais para evitar callbacks após shutdown
+	if multiplayer.peer_connected.is_connected(_add_player_to_game):
+		multiplayer.peer_connected.disconnect(_add_player_to_game)
+	if multiplayer.peer_disconnected.is_connected(_del_player):
+		multiplayer.peer_disconnected.disconnect(_del_player)
+	
 	multiplayer_mode_enabled = false
 	host_mode_enabled = false
 	current_player_count = 0
@@ -223,6 +254,8 @@ func shutdown_multiplayer():
 	if multiplayer.multiplayer_peer:
 		multiplayer.multiplayer_peer.close()
 		multiplayer.multiplayer_peer = null
+	
+	print("Multiplayer shutdown complete")
 	
 	
 	
