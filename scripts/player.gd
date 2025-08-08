@@ -1,6 +1,5 @@
 extends CharacterBody2D
 
-
 const SPEED = 130.0
 const JUMP_VELOCITY = -300.0
 
@@ -8,8 +7,8 @@ const JUMP_VELOCITY = -300.0
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 var alive = true
-var respawning = false  # Flag para evitar morte durante respawn
-var can_move = true  # Controle para espectador (não usado no singleplayer, mas mantido para compatibilidade)
+var respawning = false
+var can_move = true
 
 func set_can_move(value: bool):
 	can_move = value
@@ -20,24 +19,19 @@ func get_player_id():
 func mark_dead():
 	print("[Player] mark_dead called!")
 	
-	# Se já está respawnando, ignora
 	if respawning:
-		print("[Player] Already respawning, ignoring death")
 		return
 	
 	alive = false
 	$CollisionShape2D.set_deferred("disabled", true)
 	
-	# Sistema de vidas para singleplayer
 	var game_manager = get_tree().get_current_scene().get_node("GameManager")
 	if game_manager:
 		var still_alive = game_manager.lose_life(get_player_id())
 		if not still_alive:
 			print("Singleplayer Game Over - returning to menu")
-			return  # O GameManager cuida de voltar ao menu
+			return
 		else:
-			# Ainda tem vidas, agenda respawn
-			print("Player has %d lives left, respawning..." % game_manager.get_lives(get_player_id()))
 			respawning = true
 			var respawn_timer = Timer.new()
 			add_child(respawn_timer)
@@ -46,30 +40,21 @@ func mark_dead():
 			respawn_timer.timeout.connect(_singleplayer_respawn)
 			respawn_timer.start()
 
-func _singleplayer_respawn():
-	print("[Player] Respawning singleplayer...")
+func _singleplayer_respawn():	
+	position = Vector2(50, -100)
 	
-	# Primeiro move para posição segura (bem longe de qualquer killzone)
-	position = Vector2(50, -100)  # Bem alto para garantir que está seguro
-	
-	# Aguarda alguns frames para garantir que saiu de qualquer área perigosa
 	await get_tree().process_frame
 	await get_tree().process_frame
 	await get_tree().process_frame
 	
-	# Reativar player
 	alive = true
 	$CollisionShape2D.set_deferred("disabled", false)
 	Engine.time_scale = 1.0
 	
-	# Aguarda mais um pouco antes de permitir morte novamente
 	await get_tree().create_timer(0.5).timeout
 	respawning = false
-	
-	print("[Player] Respawn complete at position: %s" % position)
 
 func _ready():
-	# Singleplayer usa grupo "player", multiplayer usa "players"
 	if MultiplayerManager.multiplayer_mode_enabled:
 		add_to_group("players")
 		print("[Player] Added to 'players' group (multiplayer)")

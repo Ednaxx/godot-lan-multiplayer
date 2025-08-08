@@ -119,8 +119,6 @@ func _resync_all_players():
 	print("Resyncing all players...")
 	
 func _force_resync_for_new_peer(new_peer_id: int):
-	print("Forcing resync for new peer: %d" % new_peer_id)
-	# Remove e re-adiciona todos os players para forçar replicação
 	var players_data = []
 	
 	for child in _players_spawn_node.get_children():
@@ -141,7 +139,6 @@ func _force_resync_for_new_peer(new_peer_id: int):
 func _del_player(id: int):
 	print("Player %s left the game!" % id)
 	
-	# Verifica se ainda temos acesso aos nós
 	if not _players_spawn_node or not is_instance_valid(_players_spawn_node):
 		print("Players spawn node not available")
 		current_player_count = max(0, current_player_count - 1)
@@ -154,9 +151,6 @@ func _del_player(id: int):
 	_players_spawn_node.get_node(str(id)).queue_free()
 	current_player_count = max(0, current_player_count - 1)
 	
-	print("Current players: %d/%d" % [current_player_count, MAX_PLAYERS_PER_SERVER])
-	
-	# Só retoma broadcasts se ainda estivermos em modo host e multiplayer ativo
 	if (host_mode_enabled and 
 		current_player_count < MAX_PLAYERS_PER_SERVER and 
 		not broadcast_timer and
@@ -189,7 +183,6 @@ func _start_server_broadcasting():
 	_broadcast_server()
 
 func _broadcast_server():
-	# Verificações de segurança antes de fazer broadcast
 	if (not host_mode_enabled or 
 		not broadcast_socket or 
 		not is_instance_valid(broadcast_socket) or
@@ -241,7 +234,6 @@ func shutdown_multiplayer():
 	print("Shutting down multiplayer...")
 	_stop_server_broadcasting()
 	
-	# Desconectar sinais para evitar callbacks após shutdown
 	if multiplayer.peer_connected.is_connected(_add_player_to_game):
 		multiplayer.peer_connected.disconnect(_add_player_to_game)
 	if multiplayer.peer_disconnected.is_connected(_del_player):
@@ -256,14 +248,3 @@ func shutdown_multiplayer():
 		multiplayer.multiplayer_peer = null
 	
 	print("Multiplayer shutdown complete")
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
