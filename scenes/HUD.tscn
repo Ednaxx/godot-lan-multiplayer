@@ -2,7 +2,7 @@
 
 [ext_resource type="FontFile" uid="uid://c53kogtyjwsss" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="1_fls4u"]
 [ext_resource type="Script" uid="uid://f8n8yoc2018w" path="res://scripts/score_label.gd" id="2_1etfg"]
-[ext_resource type="Script" path="res://scripts/lives_label.gd" id="3_lives"]
+[ext_resource type="Script" path="res://scripts/lives/lives_label.gd" id="3_lives"]
 
 [node name="Hud" type="Control"]
 layout_mode = 3

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bb7pkmvsj0xkl"]
 
-[ext_resource type="Script" path="res://scripts/lives_display.gd" id="1_5k3wj"]
+[ext_resource type="Script" path="res://scripts/lives/lives_display.gd" id="1_5k3wj"]
 
 [node name="LivesDisplay" type="Control"]
 layout_mode = 3

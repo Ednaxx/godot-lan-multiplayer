@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://cb7pkmvsj0xkm"]
 
 [ext_resource type="FontFile" uid="uid://c53kogtyjwsss" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="1_0payp"]
-[ext_resource type="Script" path="res://scripts/lives_label.gd" id="2_ep32e"]
+[ext_resource type="Script" path="res://scripts/lives/lives_label.gd" id="2_ep32e"]
 
 [node name="LivesCounter" type="Control"]
 layout_mode = 3
