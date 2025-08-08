@@ -104,6 +104,10 @@ func _add_player_to_game(id: int):
 	_players_spawn_node.add_child(player_to_add, true)
 	current_player_count += 1
 
+	var game_manager = get_tree().get_current_scene().get_node_or_null("GameManager")
+	if game_manager and game_manager.has_method("sync_initial_state_for_player"):
+		game_manager.call_deferred("sync_initial_state_for_player", id)
+
 	if host_mode_enabled:
 		call_deferred("_force_resync_for_new_peer", id)
 	

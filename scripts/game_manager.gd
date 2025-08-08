@@ -5,17 +5,32 @@ signal lives_updated(player_id, new_lives)
 signal game_over_signal(player_id)
 
 @rpc("authority", "call_local")
+func sync_score_update(player_id: int, new_score: int):
+	if game_ending:
+		return
+	print("DEBUG GameManager: sync_score_update RPC received - player_id=%d, new_score=%d" % [player_id, new_score])
+	scores[player_id] = new_score
+	score_updated.emit(player_id, new_score)
+
+@rpc("authority", "call_local")
+func sync_coin_collected(coin_path: String):
+	if game_ending:
+		return
+	collected_coins[coin_path] = true
+	var coin_node = get_tree().get_current_scene().get_node_or_null(coin_path)
+	if coin_node and coin_node.has_method("_handle_collection"):
+		coin_node._handle_collection()
+
+@rpc("authority", "call_local")
 func sync_lives_update(player_id: int, new_lives: int):
 	if game_ending:
-		print("DEBUG GameManager: Ignoring sync_lives_update - game is ending")
-		return
-		
-	print("DEBUG GameManager: sync_lives_update RPC - player_id=%d, new_lives=%d, is_server=%s" % [player_id, new_lives, multiplayer.is_server()])
+		return		
 	lives_updated.emit(player_id, new_lives)
 
 var scores = {}
 var lives = {}
 var spectators = {}
+var collected_coins = {}  # Track collected coins by their unique path
 const MAX_LIVES = 3
 var game_ending = false
 
@@ -59,10 +74,43 @@ func add_point(player_id):
 	if not scores.has(player_id):
 		scores[player_id] = 0
 	scores[player_id] += 1
-	emit_signal("score_updated", player_id, scores[player_id])
+	
+	if MultiplayerManager.multiplayer_mode_enabled and multiplayer.is_server():
+		sync_score_update.rpc(player_id, scores[player_id])
+	else:
+		emit_signal("score_updated", player_id, scores[player_id])
 
 func get_score(player_id):
 	return scores.get(player_id, 0)
+
+func sync_initial_state_for_player(player_id: int):
+	if not multiplayer.is_server():
+		return
+	
+	print("DEBUG GameManager: Syncing initial state for player %d" % player_id)
+	print("DEBUG GameManager: Current scores: %s" % scores)
+	print("DEBUG GameManager: Current lives: %s" % lives)
+	
+	await get_tree().create_timer(0.5).timeout
+	
+	for pid in scores.keys():
+		print("DEBUG GameManager: Sending score sync to player %d: player %d has %d points" % [player_id, pid, scores[pid]])
+		sync_score_update.rpc_id(player_id, pid, scores[pid])
+	
+	for pid in lives.keys():
+		print("DEBUG GameManager: Sending lives sync to player %d: player %d has %d lives" % [player_id, pid, lives[pid]])
+		sync_lives_update.rpc_id(player_id, pid, lives[pid])
+	
+	for coin_path in collected_coins.keys():
+		sync_coin_collected.rpc_id(player_id, coin_path)
+
+func is_coin_collected(coin_path: String) -> bool:
+	return collected_coins.has(coin_path)
+
+func mark_coin_collected(coin_path: String):
+	collected_coins[coin_path] = true
+	if MultiplayerManager.multiplayer_mode_enabled and multiplayer.is_server():
+		sync_coin_collected.rpc(coin_path)
 
 func get_lives(player_id):
 	if not lives.has(player_id):
